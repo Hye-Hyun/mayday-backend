@@ -2,6 +2,8 @@ package com.mayday.controller;
 
 
 import com.mayday.domain.auth.AuthService;
+import com.mayday.domain.auth.dto.AuthResponse;
+import com.mayday.domain.auth.dto.LoginRequest;
 import com.mayday.domain.auth.dto.SignUpRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +26,10 @@ public class AuthController {
         authService.signup(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request){
+        return ResponseEntity.ok(authService.login(request));
     }
 }

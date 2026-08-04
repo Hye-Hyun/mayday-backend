@@ -1,19 +1,26 @@
 package com.mayday.domain.auth;
 
+import com.mayday.domain.auth.dto.AuthResponse;
+import com.mayday.domain.auth.dto.LoginRequest;
 import com.mayday.domain.auth.dto.SignUpRequest;
 import com.mayday.domain.user.User;
 import com.mayday.domain.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.mayday.global.security.JwtTokenProvider;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder){
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtTokenProvider jwtTokenProvider){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     //비밀번호, 비밀번호 확인 같은지 검사
@@ -54,6 +61,7 @@ public class AuthService {
         }
     }
 
+    //회원가입
     public void signup(SignUpRequest request){
         validateDuplicateEmail(request.getEmail());
 
@@ -81,5 +89,18 @@ public class AuthService {
         );
 
         userRepository.save(user);
+    }
+
+    public AuthResponse login(LoginRequest request){
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
+
+        String accessToken = jwtTokenProvider.createToken(user.getId(), user.getEmail());
+
+        return new AuthResponse(accessToken, "Bearer", user.getId(), user.getEmail(), user.isOnboardingCompleted());
     }
 }
