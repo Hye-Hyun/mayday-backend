@@ -5,6 +5,7 @@ import com.mayday.domain.auth.dto.LoginRequest;
 import com.mayday.domain.auth.dto.SignUpRequest;
 import com.mayday.domain.user.User;
 import com.mayday.domain.user.UserRepository;
+import com.mayday.global.exception.InvalidLoginException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.mayday.global.security.JwtTokenProvider;
@@ -93,10 +94,10 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request){
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
+                .orElseThrow(() -> new InvalidLoginException("이메일 또는 비밀번호가 올바르지 않습니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
+            throw new InvalidLoginException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
         String accessToken = jwtTokenProvider.createToken(user.getId(), user.getEmail());
