@@ -92,6 +92,7 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    //로그인
     public AuthResponse login(LoginRequest request){
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidLoginException("이메일 또는 비밀번호가 올바르지 않습니다."));

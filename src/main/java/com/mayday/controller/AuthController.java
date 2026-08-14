@@ -22,6 +22,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    //회원가입
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody SignUpRequest request){
         authService.signup(request);
@@ -29,11 +30,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    //로그인
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request){
         return ResponseEntity.ok(authService.login(request));
     }
 
+    //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(){
         return ResponseEntity.ok().build();
