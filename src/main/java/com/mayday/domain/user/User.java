@@ -29,6 +29,14 @@ public class User {
     @Column(nullable = false)
     private boolean onboardingCompleted;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private JobCategory jobCategory; // nullable — 온보딩 전엔 없음
+
+    @Column
+    private Long initialIncome; // nullable — 온보딩 전엔 없음
+
+
     protected User(){}
 
     public User(String email, String password,
@@ -40,6 +48,12 @@ public class User {
         this.agreedToPrivacy = agreedToPrivacy;
         this.agreedToReceiptAnalysis = agreedToReceiptAnalysis;
         this.onboardingCompleted = false;
+    }
+
+    public void completeOnboarding(JobCategory jobCategory, Long initialIncome) {
+        this.jobCategory = jobCategory;
+        this.initialIncome = initialIncome;
+        this.onboardingCompleted = true;
     }
 
 }
