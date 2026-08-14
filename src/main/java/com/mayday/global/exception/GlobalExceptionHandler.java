@@ -27,4 +27,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(message));
     }
+
+    @ExceptionHandler(UnsupportedImageTypeException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedImageType(UnsupportedImageTypeException e) {
+        return ResponseEntity.status(415).body(new ErrorResponse(e.getMessage()));
+    }
 }

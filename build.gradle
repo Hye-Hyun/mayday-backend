@@ -34,6 +34,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
+    implementation 'com.google.cloud:google-cloud-vision:3.34.0'
 }
 
 tasks.named('test') {
