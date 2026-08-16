@@ -2,6 +2,7 @@ package com.mayday.domain.expense;
 
 import com.mayday.domain.ai.EvidenceJudgmentPolicy;
 import com.mayday.domain.ai.EvidenceJudgmentResult;
+import com.mayday.domain.ai.model.ConfidenceLevel;
 import com.mayday.domain.expense.dto.ExpenseAiRawResult;
 import com.mayday.domain.expense.dto.ExpenseAnalyzeRequest;
 import com.mayday.domain.expense.dto.ExpenseAnalyzeResponse;
@@ -41,6 +42,7 @@ public class ExpenseAnalyzeService {
                 .qualifiedEvidence(evidenceJudgment.isQualifiedEvidence())
                 .reason(buildReason(raw.getReason(), evidenceJudgment.getEvidenceReason()))
                 .confidenceScore(raw.getConfidenceScore())
+                .confidenceLevel(ConfidenceLevel.fromScore(raw.getConfidenceScore()).name())
                 .build();
     }
 

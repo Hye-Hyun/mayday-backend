@@ -1,5 +1,6 @@
 package com.mayday.domain.ai.dto;
 
+import com.mayday.domain.ai.model.ConfidenceLevel;
 import com.mayday.domain.ai.model.EvidenceType;
 import com.mayday.domain.ai.model.ExpenseCategory;
 
@@ -18,6 +19,7 @@ public class ExpenseAnalysisResponse {
     private final Boolean qualifiedEvidence;
     private final String reason;
     private final int confidenceScore;
+    private final ConfidenceLevel confidenceLevel;
 
     public ExpenseAnalysisResponse(
             String analysisId,
@@ -43,6 +45,7 @@ public class ExpenseAnalysisResponse {
         this.qualifiedEvidence = qualifiedEvidence;
         this.reason = reason;
         this.confidenceScore = confidenceScore;
+        this.confidenceLevel = ConfidenceLevel.fromScore(confidenceScore);
     }
 
     public String getAnalysisId(){ return analysisId;}
@@ -66,5 +69,7 @@ public class ExpenseAnalysisResponse {
     public String getReason(){return reason;}
 
     public int getConfidenceScore(){return confidenceScore;}
+
+    public ConfidenceLevel getConfidenceLevel(){return confidenceLevel;}
 
 }

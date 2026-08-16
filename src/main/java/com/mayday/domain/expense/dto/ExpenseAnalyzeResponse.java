@@ -18,4 +18,5 @@ public class ExpenseAnalyzeResponse {
     private boolean qualifiedEvidence;
     private String reason;
     private int confidenceScore;
+    private String confidenceLevel;
 }
