@@ -32,4 +32,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnsupportedImageType(UnsupportedImageTypeException e) {
         return ResponseEntity.status(415).body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(LlmAnalysisException.class)
+    public ResponseEntity<ErrorResponse> handleLlmAnalysisException(LlmAnalysisException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(new ErrorResponse(HttpStatus.BAD_GATEWAY.value(), e.getMessage()));
+    }
 }
