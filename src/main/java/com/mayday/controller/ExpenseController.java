@@ -91,16 +91,16 @@ public class ExpenseController {
     @GetMapping("/categories")
     public ResponseEntity<ApiResponse<CategoryOptionsResponse>> getCategoryOptions() {
         List<CategoryOptionResponse> expenseCategories = Arrays.stream(ExpenseCategory.values())
+                .filter(ExpenseCategory::isExpense)
                 .map(category -> new CategoryOptionResponse(category.getLabel(), category.name()))
                 .toList();
 
-        CategoryOptionsResponse response = new CategoryOptionsResponse(
-                expenseCategories,
-                List.of(
-                        new CategoryOptionResponse("매출", "SALES"),
-                        new CategoryOptionResponse("기타(수입)", "OTHER_INCOME")
-                )
-        );
+        List<CategoryOptionResponse> incomeCategories = Arrays.stream(ExpenseCategory.values())
+                .filter(ExpenseCategory::isIncome)
+                .map(category -> new CategoryOptionResponse(category.getLabel(), category.name()))
+                .toList();
+
+        CategoryOptionsResponse response = new CategoryOptionsResponse(expenseCategories, incomeCategories);
 
         return ResponseEntity.ok(ApiResponse.ok("계정과목 옵션 조회 성공", response));
     }

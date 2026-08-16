@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExpenseUpdateRequest {
 
-    @NotNull(message = "지출 일자를 입력해주세요.")
+    @NotNull(message = "거래 일자를 입력해주세요.")
     private LocalDate date;
 
     private String merchantName;
@@ -23,11 +23,11 @@ public class ExpenseUpdateRequest {
     @NotBlank(message = "거래 내용을 입력해주세요.")
     private String itemName;
 
-    @NotNull(message = "지출 금액을 입력해주세요.")
-    @Positive(message = "지출 금액은 0보다 커야 합니다")
+    @NotNull(message = "거래 금액을 입력해주세요.")
+    @Positive(message = "거래 금액은 0보다 커야 합니다")
     private Long amount;
 
-    @NotNull(message = "경비 항목을 선택해주세요.")
+    @NotNull(message = "거래 항목을 선택해주세요.")
     private ExpenseCategory category;
 
     @NotNull(message = "증빙 유형을 선택해주세요.")

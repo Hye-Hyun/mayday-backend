@@ -20,7 +20,7 @@ public class ExpenseListItemResponse {
 
     private ExpenseListItemResponse(Expense expense, String expenseId) {
         this.expenseId = expenseId;
-        this.type = "EXPENSE";
+        this.type = expense.getCategory().isIncome() ? "INCOME" : "EXPENSE";
         this.date = expense.getDate();
         this.merchantName = expense.getMerchantName();
         this.itemName = expense.getItemName();

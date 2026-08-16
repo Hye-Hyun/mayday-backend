@@ -1,0 +1,32 @@
+package com.mayday.controller;
+
+import com.mayday.domain.user.UserService;
+import com.mayday.domain.user.dto.OnboardingRequest;
+import com.mayday.global.response.ApiResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PatchMapping("/me/onboarding")
+    public ResponseEntity<ApiResponse<Void>> completeOnboarding(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody OnboardingRequest request
+    ) {
+        userService.completeOnboarding(userId, request);
+        return ResponseEntity.ok(ApiResponse.ok("온보딩 정보 저장 성공", null));
+    }
+}
