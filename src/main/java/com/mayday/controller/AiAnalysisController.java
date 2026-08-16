@@ -1,8 +1,9 @@
 package com.mayday.controller;
 
 import com.mayday.domain.ai.ExpenseCategorySuggestionService;
-import com.mayday.domain.ai.dto.ExpenseCategorySuggestionRequest;
-import com.mayday.domain.ai.dto.ExpenseCategorySuggestionResponse;
+import com.mayday.domain.ai.dto.ExpenseAnalysisRequest;
+import com.mayday.domain.ai.dto.ExpenseAnalysisResponse;
+import com.mayday.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/expenses")
 public class AiAnalysisController {
 
     private final ExpenseCategorySuggestionService expenseCategorySuggestionService;
@@ -21,11 +22,13 @@ public class AiAnalysisController {
         this.expenseCategorySuggestionService = expenseCategorySuggestionService;
     }
 
-    @PostMapping("/expense-category-suggestions")
-    public ResponseEntity<ExpenseCategorySuggestionResponse> suggestExpenseCategory(
+    @PostMapping("/analyze")
+    public ResponseEntity<ApiResponse<ExpenseAnalysisResponse>> analyzeExpense(
             @AuthenticationPrincipal Long userId,
-            @Valid @RequestBody ExpenseCategorySuggestionRequest request
+            @Valid @RequestBody ExpenseAnalysisRequest request
     ) {
-        return ResponseEntity.ok(expenseCategorySuggestionService.suggest(userId, request));
+        return ResponseEntity.ok(
+                ApiResponse.ok("AI 분석 성공", expenseCategorySuggestionService.analyze(userId, request))
+        );
     }
 }
