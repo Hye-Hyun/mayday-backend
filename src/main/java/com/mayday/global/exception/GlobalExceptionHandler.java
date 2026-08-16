@@ -43,4 +43,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                 .body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(LlmAnalysisException.class)
+    public ResponseEntity<ErrorResponse> handleLlmAnalysisException(LlmAnalysisException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(new ErrorResponse(e.getMessage()));
+    }
 }
