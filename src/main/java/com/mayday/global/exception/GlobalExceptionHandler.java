@@ -36,4 +36,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getMessage()));
     }
 
+    @ExceptionHandler(UnsupportedImageTypeException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedImageType(
+            UnsupportedImageTypeException e){
+        return ResponseEntity
+                .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
 }
