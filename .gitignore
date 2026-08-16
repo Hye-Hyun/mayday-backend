@@ -38,6 +38,13 @@ out/
 
 ### Local application secrets ###
 src/main/resources/application-local.properties
+.env
+.env.*
+!.env.example
+*.local
+*-service-account.json
+google-credentials.json
+service-account.json
 
 ### JVM crash logs ###
 hs_err_pid*.log
