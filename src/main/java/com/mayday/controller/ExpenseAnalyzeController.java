@@ -4,9 +4,10 @@ import com.mayday.domain.expense.ExpenseAnalyzeService;
 import com.mayday.domain.expense.dto.ExpenseAnalyzeRequest;
 import com.mayday.domain.expense.dto.ExpenseAnalyzeResponse;
 import com.mayday.global.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +17,12 @@ public class ExpenseAnalyzeController {
 
     private final ExpenseAnalyzeService expenseAnalyzeService;
 
-    @PostMapping("/analyze/llm")
-    public ResponseEntity<ApiResponse<ExpenseAnalyzeResponse>> analyze(@RequestBody ExpenseAnalyzeRequest request) {
+    @PostMapping("/analyze")
+    public ResponseEntity<ApiResponse<ExpenseAnalyzeResponse>> analyze(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody ExpenseAnalyzeRequest request
+    ) {
         ExpenseAnalyzeResponse response = expenseAnalyzeService.analyze(request);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok("AI 분석 성공", response));
+        return ResponseEntity.ok(ApiResponse.ok("AI 분석 성공", response));
     }
 }

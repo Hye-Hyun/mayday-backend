@@ -65,7 +65,7 @@ public class OpenAiExpenseAiClient implements ExpenseAiClient {
             String content = (String) message.get("content");
             return objectMapper.readValue(content, ExpenseAiRawResult.class);
         } catch (Exception e) {
-            throw new LlmAnalysisException("AI 분석 결과 파싱에 실패했습니다.");
+            throw new LlmAnalysisException("AI 분석에 실패했습니다. 잠시 후 다시 시도해주세요");
         }
     }
 }

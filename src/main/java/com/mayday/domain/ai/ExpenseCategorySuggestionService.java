@@ -62,9 +62,6 @@ public class ExpenseCategorySuggestionService {
                 category,
                 evidenceType,
                 evidenceJudgment.isQualifiedEvidence(),
-                evidenceJudgment.getEvidenceJudgment(),
-                evidenceJudgment.isExpenseTreatmentPossible(),
-                evidenceJudgment.getEvidenceReason(),
                 buildAnalysisReason(category, evidenceType, evidenceJudgment, amount),
                 confidenceScore
         );

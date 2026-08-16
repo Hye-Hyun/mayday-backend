@@ -37,12 +37,9 @@ public class ExpenseAnalyzeService {
                 .itemName(raw.getItemName())
                 .amount(raw.getAmount())
                 .category(raw.getCategory())
-                .evidenceType(raw.getEvidenceType())
+                .evidenceType(normalizeEvidenceType(raw.getEvidenceType()))
                 .qualifiedEvidence(evidenceJudgment.isQualifiedEvidence())
-                .evidenceJudgment(evidenceJudgment.getEvidenceJudgment().name())
-                .expenseTreatmentPossible(evidenceJudgment.isExpenseTreatmentPossible())
-                .evidenceReason(evidenceJudgment.getEvidenceReason())
-                .reason(raw.getReason())
+                .reason(buildReason(raw.getReason(), evidenceJudgment.getEvidenceReason()))
                 .confidenceScore(raw.getConfidenceScore())
                 .build();
     }
@@ -52,6 +49,17 @@ public class ExpenseAnalyzeService {
             int recalculatedAmount = (int) Math.round(raw.getAmount() / WITHHOLDING_TAX_RATE);
             raw.overrideAmount(recalculatedAmount);
         }
+    }
+
+    private String normalizeEvidenceType(String evidenceType) {
+        return "NONE".equalsIgnoreCase(evidenceType) ? "UNKNOWN" : evidenceType;
+    }
+
+    private String buildReason(String aiReason, String evidenceReason) {
+        if (aiReason == null || aiReason.isBlank()) {
+            return evidenceReason;
+        }
+        return aiReason;
     }
 
     private String generateAnalysisId() {
