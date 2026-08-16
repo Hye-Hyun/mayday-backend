@@ -43,5 +43,4 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                 .body(new ErrorResponse(e.getMessage()));
     }
-
 }
