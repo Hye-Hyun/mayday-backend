@@ -105,6 +105,6 @@ public class ExpenseService {
     }
 
     private String formatExpenseId(Long id) {
-        return EXPENSE_ID_PREFIX + id;
+        return EXPENSE_ID_PREFIX + String.format("%03d", id);
     }
 }
