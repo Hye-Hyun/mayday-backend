@@ -37,7 +37,12 @@ public class ExpenseCategorySuggestionService {
 
         ExpenseCategory category = suggestCategory(analysisText, amount);
         EvidenceType evidenceType = suggestEvidenceType(analysisText);
-        boolean qualifiedEvidence = suggestQualifiedEvidence(evidenceType, analysisText);
+        EvidenceJudgmentResult evidenceJudgment = EvidenceJudgmentPolicy.evaluate(
+                "EXPENSE",
+                amount,
+                evidenceType,
+                category
+        );
         int confidenceScore = calculateAnalysisConfidenceScore(
                 category,
                 evidenceType,
@@ -56,8 +61,11 @@ public class ExpenseCategorySuggestionService {
                 amount,
                 category,
                 evidenceType,
-                qualifiedEvidence,
-                buildAnalysisReason(category, evidenceType, qualifiedEvidence, amount),
+                evidenceJudgment.isQualifiedEvidence(),
+                evidenceJudgment.getEvidenceJudgment(),
+                evidenceJudgment.isExpenseTreatmentPossible(),
+                evidenceJudgment.getEvidenceReason(),
+                buildAnalysisReason(category, evidenceType, evidenceJudgment, amount),
                 confidenceScore
         );
     }
@@ -282,7 +290,7 @@ public class ExpenseCategorySuggestionService {
     private String buildAnalysisReason(
             ExpenseCategory category,
             EvidenceType evidenceType,
-            boolean qualifiedEvidence,
+            EvidenceJudgmentResult evidenceJudgment,
             Long amount
     ) {
         if (amount != null && amount > LARGE_EXPENSE_THRESHOLD) {
@@ -291,7 +299,10 @@ public class ExpenseCategorySuggestionService {
         if (evidenceType == EvidenceType.UNKNOWN && category == ExpenseCategory.OTHER_EXPENSE) {
             return "거래 텍스트에서 명확한 증빙 유형과 경비 항목 단서를 찾지 못해 추가 확인이 필요합니다.";
         }
-        if (qualifiedEvidence) {
+        if (evidenceJudgment.isQualifiedEvidence()) {
+            if (evidenceType == EvidenceType.UNKNOWN || evidenceType == EvidenceType.SIMPLE_RECEIPT) {
+                return evidenceJudgment.getEvidenceReason();
+            }
             return evidenceType.getLabel() + " 단서와 " + category.getLabel() + " 관련 단어가 확인되어 AI 분석 결과로 제안합니다.";
         }
 
@@ -351,13 +362,6 @@ public class ExpenseCategorySuggestionService {
         }
 
         return EvidenceType.UNKNOWN;
-    }
-
-    private boolean suggestQualifiedEvidence(EvidenceType evidenceType, String text){
-        return evidenceType == EvidenceType.CARD_RECEIPT
-                || evidenceType == EvidenceType.CASH_RECEIPT
-                || evidenceType == EvidenceType.TAX_INVOICE
-                || evidenceType == EvidenceType.INVOICE;
     }
 
     private LocalDate parseDate(String date) {
