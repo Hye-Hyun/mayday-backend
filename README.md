@@ -22,3 +22,36 @@ $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\google-credentials.json"
 `OPENAI_API_KEY` is required only for LLM-based expense analysis.
 `GOOGLE_APPLICATION_CREDENTIALS` is required only for OCR features that call
 Google Cloud Vision.
+
+## Temporary Render deployment
+
+Use this only as a frontend integration/test server.
+
+1. Create a Render PostgreSQL database.
+2. Create a Render Web Service from this repository's `integrate` branch.
+3. Use these commands:
+
+```bash
+./gradlew clean bootJar -x test
+java -Dserver.port=$PORT -jar build/libs/*.jar
+```
+
+4. Set environment variables:
+
+```text
+DB_URL=jdbc:postgresql://<host>:<port>/<database>
+DB_USERNAME=<render-db-user>
+DB_PASSWORD=<render-db-password>
+DB_DRIVER=org.postgresql.Driver
+JWT_SECRET=<at-least-32-byte-secret>
+JWT_ACCESS_TOKEN_EXPIRATION=3600000
+OPENAI_API_KEY=<openai-api-key>
+CORS_ALLOWED_ORIGINS=<frontend-url-or-*>
+```
+
+OCR can be skipped for temporary API testing. To enable OCR on Render, add the
+Google service account JSON as a Render Secret File and set:
+
+```text
+GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/<secret-file-name>.json
+```

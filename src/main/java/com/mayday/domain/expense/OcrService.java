@@ -6,6 +6,7 @@ import com.mayday.domain.expense.dto.OcrResultData;
 import com.mayday.global.exception.UnsupportedImageTypeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +24,7 @@ public class OcrService {
     private static final Set<String> ALLOWED_CONTENT_TYPES =
             Set.of("image/jpeg", "image/jpg", "image/png");
 
-    private final ImageAnnotatorClient imageAnnotatorClient;
+    private final ObjectProvider<ImageAnnotatorClient> imageAnnotatorClientProvider;
     private final ReceiptTextParser receiptTextParser;
 
     public OcrResultData extract(MultipartFile file, Long userId) {
@@ -53,6 +54,11 @@ public class OcrService {
     }
 
     private String requestTextDetection(MultipartFile file) {
+        ImageAnnotatorClient imageAnnotatorClient = imageAnnotatorClientProvider.getIfAvailable();
+        if (imageAnnotatorClient == null) {
+            throw new IllegalStateException("OCR 인증 정보가 설정되지 않았습니다");
+        }
+
         try {
             ByteString imgBytes = ByteString.copyFrom(file.getBytes());
             Image img = Image.newBuilder().setContent(imgBytes).build();
