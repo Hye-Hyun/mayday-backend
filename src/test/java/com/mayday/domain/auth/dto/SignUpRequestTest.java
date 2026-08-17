@@ -16,9 +16,9 @@ class SignUpRequestTest {
                   "email": "user@example.com",
                   "password": "password1",
                   "passwordConfirm": "password1",
-                  "isAgreedToTerms": true,
-                  "isAgreedToPrivacy": true,
-                  "isAgreedToReceiptAnalysis": true
+                  "termsAgreed": true,
+                  "privacyAgreed": true,
+                  "evidenceProcessingAgreed": true
                 }
                 """;
 

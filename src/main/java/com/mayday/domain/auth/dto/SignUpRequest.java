@@ -27,7 +27,13 @@ public class SignUpRequest {
     @JsonAlias({"isAgreedToPrivacy", "privacyAgreed", "agreedPrivacy", "privacyAgreement"})
     private boolean agreedToPrivacy;
 
-    @JsonAlias({"isAgreedToReceiptAnalysis", "receiptAnalysisAgreed", "agreedReceiptAnalysis", "receiptAnalysisAgreement"})
+    @JsonAlias({
+            "isAgreedToReceiptAnalysis",
+            "receiptAnalysisAgreed",
+            "agreedReceiptAnalysis",
+            "receiptAnalysisAgreement",
+            "evidenceProcessingAgreed"
+    })
     private boolean agreedToReceiptAnalysis;
 
 }
