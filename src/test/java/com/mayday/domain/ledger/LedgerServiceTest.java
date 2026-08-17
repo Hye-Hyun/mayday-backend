@@ -10,6 +10,7 @@ import com.mayday.domain.income.IncomeRepository;
 import com.mayday.domain.income.dto.IncomeCreateRequest;
 import com.mayday.domain.ledger.dto.LedgerExportPreviewResponse;
 import com.mayday.domain.ledger.dto.LedgerListResponse;
+import com.mayday.domain.ledger.dto.LedgerTransactionResponse;
 import com.mayday.domain.ledger.dto.LedgerYearsResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +23,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,6 +96,98 @@ class LedgerServiceTest {
         assertThat(response.getItems().get(0).getExpense()).isZero();
         assertThat(response.getItems().get(1).getIncome()).isZero();
         assertThat(response.getItems().get(1).getExpense()).isEqualTo(15_000L);
+    }
+
+    @Test
+    void searchReturnsExpenseMatchingMerchantOrItemKeyword() {
+        mockLedgerRecords();
+
+        List<LedgerTransactionResponse> response = ledgerService.search(
+                USER_ID,
+                2026,
+                "알파문구",
+                null,
+                null,
+                null,
+                null,
+                1,
+                20
+        );
+
+        assertThat(response).hasSize(1);
+        assertThat(response.get(0).getType()).isEqualTo("EXPENSE");
+        assertThat(response.get(0).getMerchantName()).isEqualTo("알파문구");
+    }
+
+    @Test
+    void searchReturnsIncomeWithNullEvidenceFields() {
+        mockLedgerRecords();
+
+        List<LedgerTransactionResponse> response = ledgerService.search(
+                USER_ID,
+                2026,
+                "디자인",
+                "INCOME",
+                ExpenseCategory.SALES,
+                null,
+                null,
+                1,
+                20
+        );
+
+        assertThat(response).hasSize(1);
+        assertThat(response.get(0).getType()).isEqualTo("INCOME");
+        assertThat(response.get(0).getEvidenceType()).isNull();
+        assertThat(response.get(0).getQualifiedEvidence()).isNull();
+    }
+
+    @Test
+    void searchExcludesIncomeWhenEvidenceFilterIsApplied() {
+        mockLedgerRecords();
+
+        List<LedgerTransactionResponse> response = ledgerService.search(
+                USER_ID,
+                2026,
+                "디자인",
+                null,
+                null,
+                EvidenceType.CARD_RECEIPT,
+                null,
+                1,
+                20
+        );
+
+        assertThat(response).isEmpty();
+    }
+
+    @Test
+    void searchRequiresKeyword() {
+        assertThatThrownBy(() -> ledgerService.search(
+                USER_ID,
+                2026,
+                " ",
+                null,
+                null,
+                null,
+                null,
+                1,
+                20
+        ))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("검색어를 입력해주세요");
+    }
+
+    private void mockLedgerRecords() {
+        when(expenseRepository.findByUserIdAndDateBetweenAndDeletedFalseOrderByDateDescIdDesc(
+                USER_ID,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 12, 31)
+        )).thenReturn(List.of(expense(ExpenseCategory.SUPPLIES, 15_000L)));
+        when(incomeRepository.findByUserIdAndDateBetweenAndDeletedFalse(
+                USER_ID,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 12, 31)
+        )).thenReturn(List.of(income(100_000L)));
     }
 
     private Expense expense(ExpenseCategory category, Long amount) {
