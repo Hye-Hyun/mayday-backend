@@ -68,4 +68,30 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(IndustryCategoryNotSetException.class)
+    public ResponseEntity<ErrorResponse> handleIndustryCategoryNotSetException(
+            IndustryCategoryNotSetException e){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(IncomeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleIncomeNotFoundException(
+            IncomeNotFoundException e
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(IncomeAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleIncomeAccessDeniedException(
+            IncomeAccessDeniedException e
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(e.getMessage()));
+    }
 }

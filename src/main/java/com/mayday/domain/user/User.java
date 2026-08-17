@@ -2,6 +2,7 @@ package com.mayday.domain.user;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import com.mayday.domain.income.model.IndustryCategory;
 
 @Getter
 @Entity
@@ -42,4 +43,10 @@ public class User {
         this.onboardingCompleted = false;
     }
 
+    @Enumerated(EnumType.STRING)
+    private IndustryCategory industryCategory;
+
+    public void updateIndustryCategory(IndustryCategory industryCategory) {
+        this.industryCategory = industryCategory;
+    }
 }
