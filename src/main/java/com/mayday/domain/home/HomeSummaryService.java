@@ -3,6 +3,7 @@ package com.mayday.domain.home;
 import com.mayday.domain.ai.model.ExpenseCategory;
 import com.mayday.domain.expense.ExpenseRepository;
 import com.mayday.domain.home.dto.HomeSummaryResponse;
+import com.mayday.domain.income.IncomeRepository;
 import com.mayday.domain.user.User;
 import com.mayday.domain.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,15 +23,18 @@ public class HomeSummaryService {
     private static final int TAX_DEADLINE_DAY = 31;
 
     private final ExpenseRepository expenseRepository;
+    private final IncomeRepository incomeRepository;
     private final UserRepository userRepository;
     private final Clock clock;
 
     public HomeSummaryService(
             ExpenseRepository expenseRepository,
+            IncomeRepository incomeRepository,
             UserRepository userRepository,
             Clock clock
     ) {
         this.expenseRepository = expenseRepository;
+        this.incomeRepository = incomeRepository;
         this.userRepository = userRepository;
         this.clock = clock;
     }
@@ -52,7 +56,7 @@ public class HomeSummaryService {
 
         long recordedExpense = sumAmount(userId, yearStart, yearEnd, expenseCategories());
         long recordedIncome = nullToZero(user.getInitialIncome())
-                + sumAmount(userId, yearStart, yearEnd, incomeCategories());
+                + incomeRepository.sumAmountByUserIdAndDateBetween(userId, yearStart, yearEnd);
         long aiFoundExpense = expenseRepository.sumAiAnalyzedAmountByUserIdAndDateBetweenAndCategoryIn(
                 userId,
                 monthStart,
@@ -121,12 +125,6 @@ public class HomeSummaryService {
     private List<ExpenseCategory> expenseCategories() {
         return Arrays.stream(ExpenseCategory.values())
                 .filter(ExpenseCategory::isExpense)
-                .toList();
-    }
-
-    private List<ExpenseCategory> incomeCategories() {
-        return Arrays.stream(ExpenseCategory.values())
-                .filter(ExpenseCategory::isIncome)
                 .toList();
     }
 

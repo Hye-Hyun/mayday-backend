@@ -3,6 +3,7 @@ package com.mayday.domain.home;
 import com.mayday.domain.ai.model.ExpenseCategory;
 import com.mayday.domain.expense.ExpenseRepository;
 import com.mayday.domain.home.dto.HomeSummaryResponse;
+import com.mayday.domain.income.IncomeRepository;
 import com.mayday.domain.user.JobCategory;
 import com.mayday.domain.user.User;
 import com.mayday.domain.user.UserRepository;
@@ -27,6 +28,7 @@ class HomeSummaryServiceTest {
     private static final long USER_ID = 1L;
 
     private final ExpenseRepository expenseRepository = mock(ExpenseRepository.class);
+    private final IncomeRepository incomeRepository = mock(IncomeRepository.class);
     private final UserRepository userRepository = mock(UserRepository.class);
     private final Clock clock = Clock.fixed(
             Instant.parse("2026-08-17T00:00:00Z"),
@@ -34,6 +36,7 @@ class HomeSummaryServiceTest {
     );
     private final HomeSummaryService homeSummaryService = new HomeSummaryService(
             expenseRepository,
+            incomeRepository,
             userRepository,
             clock
     );
@@ -51,11 +54,10 @@ class HomeSummaryServiceTest {
                 eq(LocalDate.of(2026, 12, 31)),
                 eq(expenseCategories())
         )).thenReturn(300_000L);
-        when(expenseRepository.sumAmountByUserIdAndDateBetweenAndCategoryIn(
-                eq(USER_ID),
-                eq(LocalDate.of(2026, 1, 1)),
-                eq(LocalDate.of(2026, 12, 31)),
-                eq(incomeCategories())
+        when(incomeRepository.sumAmountByUserIdAndDateBetween(
+                USER_ID,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 12, 31)
         )).thenReturn(200_000L);
         when(expenseRepository.sumAiAnalyzedAmountByUserIdAndDateBetweenAndCategoryIn(
                 eq(USER_ID),
@@ -88,9 +90,4 @@ class HomeSummaryServiceTest {
                 .toList();
     }
 
-    private List<ExpenseCategory> incomeCategories() {
-        return Arrays.stream(ExpenseCategory.values())
-                .filter(ExpenseCategory::isIncome)
-                .toList();
-    }
 }

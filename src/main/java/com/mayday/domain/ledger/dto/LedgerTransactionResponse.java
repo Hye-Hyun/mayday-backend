@@ -3,6 +3,7 @@ package com.mayday.domain.ledger.dto;
 import com.mayday.domain.ai.model.EvidenceType;
 import com.mayday.domain.ai.model.ExpenseCategory;
 import com.mayday.domain.expense.Expense;
+import com.mayday.domain.income.Income;
 
 import java.time.LocalDate;
 
@@ -30,8 +31,24 @@ public class LedgerTransactionResponse {
         this.qualifiedEvidence = expense.getCategory().isIncome() ? null : expense.getQualifiedEvidence();
     }
 
+    private LedgerTransactionResponse(Income income) {
+        this.analysisId = income.getAnalysisId();
+        this.type = "INCOME";
+        this.date = income.getDate();
+        this.merchantName = income.getMerchantName();
+        this.itemName = income.getItemName();
+        this.amount = income.getAmount();
+        this.category = income.getCategory();
+        this.evidenceType = null;
+        this.qualifiedEvidence = null;
+    }
+
     public static LedgerTransactionResponse from(Expense expense) {
         return new LedgerTransactionResponse(expense);
+    }
+
+    public static LedgerTransactionResponse from(Income income) {
+        return new LedgerTransactionResponse(income);
     }
 
     public String getAnalysisId() {
