@@ -3,7 +3,9 @@ package com.mayday.domain.expense;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
 import com.mayday.domain.expense.dto.OcrResultData;
+import com.mayday.global.exception.OcrProcessingException;
 import com.mayday.global.exception.UnsupportedImageTypeException;
+import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -56,7 +58,7 @@ public class OcrService {
     private String requestTextDetection(MultipartFile file) {
         ImageAnnotatorClient imageAnnotatorClient = imageAnnotatorClientProvider.getIfAvailable();
         if (imageAnnotatorClient == null) {
-            throw new IllegalStateException("OCR 인증 정보가 설정되지 않았습니다");
+            throw new OcrProcessingException("OCR 인증 정보가 설정되지 않았습니다");
         }
 
         try {
@@ -74,7 +76,7 @@ public class OcrService {
 
             if (res.hasError()) {
                 log.error("Vision API error: {}", res.getError().getMessage());
-                throw new IllegalStateException("OCR 처리 중 오류가 발생했습니다");
+                throw new OcrProcessingException("OCR 처리 중 오류가 발생했습니다");
             }
 
             return res.getTextAnnotationsList().isEmpty()
@@ -83,7 +85,13 @@ public class OcrService {
 
         } catch (IOException e) {
             log.error("이미지 읽기 실패", e);
-            throw new IllegalStateException("이미지 처리 중 오류가 발생했습니다");
+            throw new OcrProcessingException("이미지 처리 중 오류가 발생했습니다", e);
+        } catch (StatusRuntimeException e) {
+            log.error("Vision API request failed. status={}, description={}",
+                    e.getStatus().getCode(),
+                    e.getStatus().getDescription(),
+                    e);
+            throw new OcrProcessingException("OCR 외부 서비스 인증 또는 요청 처리 중 오류가 발생했습니다", e);
         }
     }
 

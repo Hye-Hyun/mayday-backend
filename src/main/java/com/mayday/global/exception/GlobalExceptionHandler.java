@@ -86,4 +86,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_GATEWAY)
                 .body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(OcrProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleOcrProcessingException(OcrProcessingException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(new ErrorResponse(e.getMessage()));
+    }
 }
