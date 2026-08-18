@@ -8,13 +8,18 @@ import com.mayday.global.exception.UnsupportedImageTypeException;
 import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +33,10 @@ public class OcrService {
 
     private final ObjectProvider<ImageAnnotatorClient> imageAnnotatorClientProvider;
     private final ReceiptTextParser receiptTextParser;
+    private final WebClient.Builder webClientBuilder;
+
+    @Value("${google.vision.api-key:}")
+    private String googleVisionApiKey;
 
     public OcrResultData extract(MultipartFile file, Long userId) {
         validateImageType(file);
@@ -57,10 +66,18 @@ public class OcrService {
 
     private String requestTextDetection(MultipartFile file) {
         ImageAnnotatorClient imageAnnotatorClient = imageAnnotatorClientProvider.getIfAvailable();
-        if (imageAnnotatorClient == null) {
-            throw new OcrProcessingException("OCR 인증 정보가 설정되지 않았습니다");
+        if (imageAnnotatorClient != null) {
+            return requestTextDetectionWithClient(file, imageAnnotatorClient);
         }
 
+        if (googleVisionApiKey != null && !googleVisionApiKey.isBlank()) {
+            return requestTextDetectionWithApiKey(file);
+        }
+
+        throw new OcrProcessingException("OCR 인증 정보가 설정되지 않았습니다");
+    }
+
+    private String requestTextDetectionWithClient(MultipartFile file, ImageAnnotatorClient imageAnnotatorClient) {
         try {
             ByteString imgBytes = ByteString.copyFrom(file.getBytes());
             Image img = Image.newBuilder().setContent(imgBytes).build();
@@ -90,6 +107,62 @@ public class OcrService {
             log.error("Vision API request failed. status={}, description={}",
                     e.getStatus().getCode(),
                     e.getStatus().getDescription(),
+                    e);
+            throw new OcrProcessingException("OCR 외부 서비스 인증 또는 요청 처리 중 오류가 발생했습니다", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private String requestTextDetectionWithApiKey(MultipartFile file) {
+        try {
+            String encodedImage = Base64.getEncoder().encodeToString(file.getBytes());
+            Map<String, Object> payload = Map.of(
+                    "requests",
+                    List.of(Map.of(
+                            "image", Map.of("content", encodedImage),
+                            "features", List.of(Map.of("type", "TEXT_DETECTION"))
+                    ))
+            );
+
+            Map<String, Object> response = webClientBuilder.build()
+                    .post()
+                    .uri("https://vision.googleapis.com/v1/images:annotate?key={apiKey}", googleVisionApiKey)
+                    .bodyValue(payload)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            if (response == null) {
+                throw new OcrProcessingException("OCR 응답이 비어 있습니다");
+            }
+
+            List<Map<String, Object>> responses = (List<Map<String, Object>>) response.get("responses");
+            if (responses == null || responses.isEmpty()) {
+                throw new OcrProcessingException("OCR 응답이 비어 있습니다");
+            }
+
+            Map<String, Object> firstResponse = responses.get(0);
+            if (firstResponse.containsKey("error")) {
+                log.error("Vision REST API error: {}", firstResponse.get("error"));
+                throw new OcrProcessingException("OCR 처리 중 오류가 발생했습니다");
+            }
+
+            List<Map<String, Object>> textAnnotations =
+                    (List<Map<String, Object>>) firstResponse.get("textAnnotations");
+
+            if (textAnnotations == null || textAnnotations.isEmpty()) {
+                return "";
+            }
+
+            Object description = textAnnotations.get(0).get("description");
+            return description == null ? "" : description.toString();
+        } catch (IOException e) {
+            log.error("이미지 읽기 실패", e);
+            throw new OcrProcessingException("이미지 처리 중 오류가 발생했습니다", e);
+        } catch (WebClientResponseException e) {
+            log.error("Vision REST API request failed. status={}, body={}",
+                    e.getStatusCode(),
+                    e.getResponseBodyAsString(),
                     e);
             throw new OcrProcessingException("OCR 외부 서비스 인증 또는 요청 처리 중 오류가 발생했습니다", e);
         }

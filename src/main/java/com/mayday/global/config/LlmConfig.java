@@ -13,8 +13,13 @@ public class LlmConfig {
     private String apiKey;
 
     @Bean
-    public WebClient llmWebClient() {
-        return WebClient.builder()
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
+
+    @Bean
+    public WebClient llmWebClient(WebClient.Builder webClientBuilder) {
+        return webClientBuilder
                 .baseUrl("https://api.openai.com/v1")
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .build();
