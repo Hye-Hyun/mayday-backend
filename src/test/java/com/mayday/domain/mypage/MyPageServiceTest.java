@@ -2,6 +2,7 @@ package com.mayday.domain.mypage;
 
 import com.mayday.domain.ai.model.ExpenseCategory;
 import com.mayday.domain.expense.ExpenseRepository;
+import com.mayday.domain.income.IncomeRepository;
 import com.mayday.domain.mypage.dto.MyPageSummaryResponse;
 import com.mayday.domain.user.User;
 import com.mayday.domain.user.UserRepository;
@@ -27,6 +28,7 @@ class MyPageServiceTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
     private final ExpenseRepository expenseRepository = mock(ExpenseRepository.class);
+    private final IncomeRepository incomeRepository = mock(IncomeRepository.class);
     private final Clock clock = Clock.fixed(
             Instant.parse("2026-08-17T00:00:00Z"),
             ZoneId.of("Asia/Seoul")
@@ -34,6 +36,7 @@ class MyPageServiceTest {
     private final MyPageService myPageService = new MyPageService(
             userRepository,
             expenseRepository,
+            incomeRepository,
             clock
     );
 
@@ -48,6 +51,11 @@ class MyPageServiceTest {
                 LocalDate.of(2026, 1, 1),
                 LocalDate.of(2026, 12, 31)
         )).thenReturn(12L);
+        when(incomeRepository.countByUserIdAndDateBetweenAndDeletedFalse(
+                USER_ID,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 12, 31)
+        )).thenReturn(5L);
         when(expenseRepository.countByUserIdAndDateBetweenAndDeletedFalseAndQualifiedEvidenceTrueAndCategoryIn(
                 USER_ID,
                 LocalDate.of(2026, 1, 1),
@@ -64,7 +72,7 @@ class MyPageServiceTest {
         MyPageSummaryResponse response = myPageService.getSummary(USER_ID, 2026);
 
         assertThat(response.getEmail()).isEqualTo("mayday@example.com");
-        assertThat(response.getRecordedCount()).isEqualTo(12L);
+        assertThat(response.getRecordedCount()).isEqualTo(17L);
         assertThat(response.getQualifiedEvidenceCount()).isEqualTo(9L);
         assertThat(response.getRecognizedExpense()).isEqualTo(450_000L);
         assertThat(response.getTaxDueDate()).isEqualTo(LocalDate.of(2027, 5, 31));

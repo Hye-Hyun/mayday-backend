@@ -13,6 +13,18 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
     List<Income> findByUserIdAndDateBetweenAndDeletedFalse(
             Long userId, LocalDate startDate, LocalDate endDate);
 
+    long countByUserIdAndDateBetweenAndDeletedFalse(
+            Long userId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
+
+    long countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+            Long userId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
+
     Optional<Income> findByIdAndDeletedFalse(Long id);
 
     @Query("""

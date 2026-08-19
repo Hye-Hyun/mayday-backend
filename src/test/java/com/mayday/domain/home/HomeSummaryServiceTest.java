@@ -70,6 +70,11 @@ class HomeSummaryServiceTest {
                 LocalDate.of(2026, 8, 1),
                 LocalDate.of(2026, 8, 31)
         )).thenReturn(4L);
+        when(incomeRepository.countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+                USER_ID,
+                LocalDate.of(2026, 8, 1),
+                LocalDate.of(2026, 8, 31)
+        )).thenReturn(3L);
 
         HomeSummaryResponse response = homeSummaryService.getSummary(USER_ID, 2026, 8);
 
@@ -79,7 +84,7 @@ class HomeSummaryServiceTest {
         assertThat(response.getRecordedExpense()).isEqualTo(300_000L);
         assertThat(response.getRecordedIncomeRatio()).isEqualTo(80);
         assertThat(response.getRecordedExpenseRatio()).isEqualTo(20);
-        assertThat(response.getAiClassifiedRecords()).isEqualTo(4L);
+        assertThat(response.getAiClassifiedRecords()).isEqualTo(7L);
         assertThat(response.getTaxDueDate()).isEqualTo(LocalDate.of(2027, 5, 31));
         assertThat(response.getTaxDDay()).isEqualTo(287L);
     }

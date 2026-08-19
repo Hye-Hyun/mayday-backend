@@ -67,6 +67,10 @@ public class HomeSummaryService {
                 userId,
                 monthStart,
                 monthEnd
+        ) + incomeRepository.countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+                userId,
+                monthStart,
+                monthEnd
         );
 
         long totalAmount = recordedIncome + recordedExpense;

@@ -2,6 +2,7 @@ package com.mayday.domain.mypage;
 
 import com.mayday.domain.ai.model.ExpenseCategory;
 import com.mayday.domain.expense.ExpenseRepository;
+import com.mayday.domain.income.IncomeRepository;
 import com.mayday.domain.mypage.dto.MyPageSummaryResponse;
 import com.mayday.domain.user.User;
 import com.mayday.domain.user.UserRepository;
@@ -23,15 +24,18 @@ public class MyPageService {
 
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
+    private final IncomeRepository incomeRepository;
     private final Clock clock;
 
     public MyPageService(
             UserRepository userRepository,
             ExpenseRepository expenseRepository,
+            IncomeRepository incomeRepository,
             Clock clock
     ) {
         this.userRepository = userRepository;
         this.expenseRepository = expenseRepository;
+        this.incomeRepository = incomeRepository;
         this.clock = clock;
     }
 
@@ -47,6 +51,10 @@ public class MyPageService {
         LocalDate endDate = LocalDate.of(targetYear, 12, 31);
 
         long totalRecordCount = expenseRepository.countByUserIdAndDateBetweenAndDeletedFalse(
+                userId,
+                startDate,
+                endDate
+        ) + incomeRepository.countByUserIdAndDateBetweenAndDeletedFalse(
                 userId,
                 startDate,
                 endDate
