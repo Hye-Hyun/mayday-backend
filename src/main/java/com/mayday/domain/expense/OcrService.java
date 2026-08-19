@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,10 +68,12 @@ public class OcrService {
     private String requestTextDetection(MultipartFile file) {
         ImageAnnotatorClient imageAnnotatorClient = imageAnnotatorClientProvider.getIfAvailable();
         if (imageAnnotatorClient != null) {
+            log.debug("Requesting OCR with Google Vision client credentials");
             return requestTextDetectionWithClient(file, imageAnnotatorClient);
         }
 
         if (googleVisionApiKey != null && !googleVisionApiKey.isBlank()) {
+            log.debug("Requesting OCR with Google Vision REST API key");
             return requestTextDetectionWithApiKey(file);
         }
 
@@ -160,12 +163,30 @@ public class OcrService {
             log.error("이미지 읽기 실패", e);
             throw new OcrProcessingException("이미지 처리 중 오류가 발생했습니다", e);
         } catch (WebClientResponseException e) {
+            String responseBody = sanitizeForLog(e.getResponseBodyAsString());
             log.error("Vision REST API request failed. status={}, body={}",
                     e.getStatusCode(),
-                    e.getResponseBodyAsString(),
-                    e);
-            throw new OcrProcessingException("OCR 외부 서비스 인증 또는 요청 처리 중 오류가 발생했습니다", e);
+                    responseBody);
+
+            if (e.getStatusCode().is4xxClientError()) {
+                throw new OcrProcessingException("OCR 외부 서비스 인증 또는 설정을 확인해주세요", e);
+            }
+
+            throw new OcrProcessingException("OCR 외부 서비스 요청 처리 중 오류가 발생했습니다", e);
+        } catch (WebClientException e) {
+            log.error("Vision REST API network request failed. message={}", sanitizeForLog(e.getMessage()));
+            throw new OcrProcessingException("OCR 외부 서비스 요청 처리 중 오류가 발생했습니다", e);
         }
+    }
+
+    private String sanitizeForLog(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        return value
+                .replaceAll("key=([^&\\s]+)", "key=***")
+                .replaceAll("\"key\"\\s*:\\s*\"[^\"]+\"", "\"key\":\"***\"");
     }
 
     private void logExtractedTextForRetry(Long userId, String rawText) {

@@ -15,13 +15,13 @@ $env:DB_PASSWORD = "your-local-db-password"
 $env:JWT_SECRET = "replace-with-at-least-32-byte-secret"
 $env:JWT_ACCESS_TOKEN_EXPIRATION = "3600000"
 $env:OPENAI_API_KEY = "your-openai-api-key"
+$env:GOOGLE_VISION_API_KEY = "your-google-vision-api-key"
 $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\google-credentials.json"
 ```
 
 `JWT_SECRET` must be long enough for HS256 signing. Use at least 32 bytes.
 `OPENAI_API_KEY` is required only for LLM-based expense analysis.
-`GOOGLE_APPLICATION_CREDENTIALS` is required only for OCR features that call
-Google Cloud Vision.
+OCR requires either `GOOGLE_VISION_API_KEY` or `GOOGLE_APPLICATION_CREDENTIALS`.
 
 ## Temporary Render deployment
 
@@ -49,9 +49,19 @@ OPENAI_API_KEY=<openai-api-key>
 CORS_ALLOWED_ORIGINS=<frontend-url-or-*>
 ```
 
-OCR can be skipped for temporary API testing. To enable OCR on Render, add the
-Google service account JSON as a Render Secret File and set:
+OCR can be skipped for temporary API testing. To enable OCR on Render, set one
+of these credential options:
+
+```text
+GOOGLE_VISION_API_KEY=<google-cloud-vision-api-key>
+```
+
+or add the Google service account JSON as a Render Secret File and set:
 
 ```text
 GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/<secret-file-name>.json
 ```
+
+If `/expenses/ocr` returns `OCR 외부 서비스 인증 또는 설정을 확인해주세요`,
+check that the Cloud Vision API is enabled, billing is active, and the API key
+or service account is allowed to call Cloud Vision from the backend.
