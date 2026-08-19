@@ -65,12 +65,12 @@ class HomeSummaryServiceTest {
                 eq(LocalDate.of(2026, 8, 31)),
                 eq(expenseCategories())
         )).thenReturn(80_000L);
-        when(expenseRepository.countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+        when(expenseRepository.countByUserIdAndDateBetweenAndDeletedFalse(
                 USER_ID,
                 LocalDate.of(2026, 8, 1),
                 LocalDate.of(2026, 8, 31)
         )).thenReturn(4L);
-        when(incomeRepository.countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+        when(incomeRepository.countByUserIdAndDateBetweenAndDeletedFalse(
                 USER_ID,
                 LocalDate.of(2026, 8, 1),
                 LocalDate.of(2026, 8, 31)

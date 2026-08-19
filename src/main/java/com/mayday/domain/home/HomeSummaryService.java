@@ -63,11 +63,11 @@ public class HomeSummaryService {
                 monthEnd,
                 expenseCategories()
         );
-        long aiClassifiedRecords = expenseRepository.countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+        long aiClassifiedRecords = expenseRepository.countByUserIdAndDateBetweenAndDeletedFalse(
                 userId,
                 monthStart,
                 monthEnd
-        ) + incomeRepository.countByUserIdAndDateBetweenAndDeletedFalseAndAnalysisIdIsNotNull(
+        ) + incomeRepository.countByUserIdAndDateBetweenAndDeletedFalse(
                 userId,
                 monthStart,
                 monthEnd
