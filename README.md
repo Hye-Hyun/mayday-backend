@@ -49,17 +49,19 @@ OPENAI_API_KEY=<openai-api-key>
 CORS_ALLOWED_ORIGINS=<frontend-url-or-*>
 ```
 
-OCR can be skipped for temporary API testing. To enable OCR on Render, set one
-of these credential options:
-
-```text
-GOOGLE_VISION_API_KEY=<google-cloud-vision-api-key>
-```
-
-or add the Google service account JSON as a Render Secret File and set:
+OCR can be skipped for temporary API testing. To enable OCR on Render, prefer a
+Google service account JSON key. Add the JSON key as a Render Secret File and
+set:
 
 ```text
 GOOGLE_APPLICATION_CREDENTIALS=/etc/secrets/<secret-file-name>.json
+```
+
+The older API key option is still supported as a fallback, but the service
+account JSON key is the recommended OCR authentication method:
+
+```text
+GOOGLE_VISION_API_KEY=<google-cloud-vision-api-key>
 ```
 
 If `/expenses/ocr` returns `OCR 외부 서비스 인증 또는 설정을 확인해주세요`,
