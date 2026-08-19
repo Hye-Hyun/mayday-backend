@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 public class LedgerTransactionResponse {
 
+    private final String incomeId;
+    private final String expenseId;
     private final String analysisId;
     private final String type;
     private final LocalDate date;
@@ -20,6 +22,8 @@ public class LedgerTransactionResponse {
     private final Boolean qualifiedEvidence;
 
     private LedgerTransactionResponse(Expense expense) {
+        this.incomeId = null;
+        this.expenseId = formatExpenseId(expense.getId());
         this.analysisId = expense.getAnalysisId();
         this.type = expense.getCategory().isIncome() ? "INCOME" : "EXPENSE";
         this.date = expense.getDate();
@@ -32,6 +36,8 @@ public class LedgerTransactionResponse {
     }
 
     private LedgerTransactionResponse(Income income) {
+        this.incomeId = formatIncomeId(income.getId());
+        this.expenseId = null;
         this.analysisId = income.getAnalysisId();
         this.type = "INCOME";
         this.date = income.getDate();
@@ -49,6 +55,14 @@ public class LedgerTransactionResponse {
 
     public static LedgerTransactionResponse from(Income income) {
         return new LedgerTransactionResponse(income);
+    }
+
+    public String getIncomeId() {
+        return incomeId;
+    }
+
+    public String getExpenseId() {
+        return expenseId;
     }
 
     public String getAnalysisId() {
@@ -85,5 +99,13 @@ public class LedgerTransactionResponse {
 
     public Boolean getQualifiedEvidence() {
         return qualifiedEvidence;
+    }
+
+    private String formatIncomeId(Long id) {
+        return id == null ? null : "inc_" + String.format("%03d", id);
+    }
+
+    private String formatExpenseId(Long id) {
+        return id == null ? null : "exp_" + String.format("%03d", id);
     }
 }

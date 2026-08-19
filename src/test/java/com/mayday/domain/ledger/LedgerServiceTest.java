@@ -57,7 +57,11 @@ class LedgerServiceTest {
         assertThat(response.getTotalCount()).isEqualTo(2);
         assertThat(response.getTransactions()).hasSize(2);
         assertThat(response.getTransactions().get(0).getType()).isEqualTo("INCOME");
+        assertThat(response.getTransactions().get(0).getIncomeId()).isEqualTo("inc_001");
+        assertThat(response.getTransactions().get(0).getExpenseId()).isNull();
         assertThat(response.getTransactions().get(1).getType()).isEqualTo("EXPENSE");
+        assertThat(response.getTransactions().get(1).getIncomeId()).isNull();
+        assertThat(response.getTransactions().get(1).getExpenseId()).isEqualTo("exp_001");
         assertThat(response.getTransactions().get(0).getEvidenceType()).isNull();
         assertThat(response.getTransactions().get(0).getQualifiedEvidence()).isNull();
     }
@@ -201,7 +205,9 @@ class LedgerServiceTest {
         ReflectionTestUtils.setField(request, "evidenceType", EvidenceType.CARD_RECEIPT);
         ReflectionTestUtils.setField(request, "qualifiedEvidence", true);
         ReflectionTestUtils.setField(request, "remark", "확인 완료");
-        return Expense.create(USER_ID, request);
+        Expense expense = Expense.create(USER_ID, request);
+        ReflectionTestUtils.setField(expense, "id", 1L);
+        return expense;
     }
 
     private Income income(Long amount) {
@@ -215,6 +221,8 @@ class LedgerServiceTest {
         ReflectionTestUtils.setField(request, "withholdingTaxApplied", true);
         ReflectionTestUtils.setField(request, "category", ExpenseCategory.SALES);
         ReflectionTestUtils.setField(request, "remark", "확인 완료");
-        return Income.create(USER_ID, request);
+        Income income = Income.create(USER_ID, request);
+        ReflectionTestUtils.setField(income, "id", 1L);
+        return income;
     }
 }
