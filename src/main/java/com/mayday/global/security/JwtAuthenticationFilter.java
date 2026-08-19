@@ -9,13 +9,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Set<String> PUBLIC_PATHS = Set.of(
+            "/auth/signup",
+            "/auth/login"
+    );
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -48,6 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return PUBLIC_PATHS.contains(request.getServletPath());
     }
 
     private String resolveToken(HttpServletRequest request){
