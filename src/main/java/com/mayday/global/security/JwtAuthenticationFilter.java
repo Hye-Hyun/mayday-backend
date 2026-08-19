@@ -17,6 +17,7 @@ import java.util.Set;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Set<String> PUBLIC_PATHS = Set.of(
+            "/error",
             "/auth/signup",
             "/auth/login"
     );
