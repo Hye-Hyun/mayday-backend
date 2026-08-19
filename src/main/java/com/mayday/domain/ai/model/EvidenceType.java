@@ -58,6 +58,13 @@ public enum EvidenceType {
             return NON_QUALIFIED;
         }
 
-        return EvidenceType.valueOf(normalized);
+        return switch (value.trim()) {
+            case "카드 매출전표", "카드매출전표" -> CARD_RECEIPT;
+            case "현금영수증" -> CASH_RECEIPT;
+            case "세금계산서" -> TAX_INVOICE;
+            case "계산서" -> INVOICE;
+            case "해당 없음", "해당없음", "부적격", "부적격증빙", "미적격" -> NON_QUALIFIED;
+            default -> EvidenceType.valueOf(normalized);
+        };
     }
 }

@@ -56,4 +56,25 @@ class RecordCreateSecurityTest {
                                 """))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    void createsExpenseWithKoreanNonQualifiedEvidenceType() throws Exception {
+        String token = jwtTokenProvider.createToken(1L, "test@test.com");
+
+        mockMvc.perform(post("/expenses")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "date": "2026-08-18",
+                                  "merchantName": "문구점",
+                                  "itemName": "노트",
+                                  "amount": 12000,
+                                  "category": "SUPPLIES",
+                                  "evidenceType": "부적격",
+                                  "qualifiedEvidence": false
+                                }
+                                """))
+                .andExpect(status().isCreated());
+    }
 }
