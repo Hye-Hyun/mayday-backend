@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
@@ -77,7 +78,7 @@ public class OcrService {
             return requestTextDetectionWithApiKey(file);
         }
 
-        throw new OcrProcessingException("OCR 인증 정보가 설정되지 않았습니다");
+        throw new OcrProcessingException("OCR 인증 정보가 설정되지 않았습니다", HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     private String requestTextDetectionWithClient(MultipartFile file, ImageAnnotatorClient imageAnnotatorClient) {
@@ -147,6 +148,12 @@ public class OcrService {
             Map<String, Object> firstResponse = responses.get(0);
             if (firstResponse.containsKey("error")) {
                 log.error("Vision REST API error: {}", firstResponse.get("error"));
+                if (isVisionConfigurationError(firstResponse.get("error"))) {
+                    throw new OcrProcessingException(
+                            "OCR 외부 서비스 인증 또는 설정을 확인해주세요",
+                            HttpStatus.SERVICE_UNAVAILABLE
+                    );
+                }
                 throw new OcrProcessingException("OCR 처리 중 오류가 발생했습니다");
             }
 
@@ -169,7 +176,11 @@ public class OcrService {
                     responseBody);
 
             if (e.getStatusCode().is4xxClientError()) {
-                throw new OcrProcessingException("OCR 외부 서비스 인증 또는 설정을 확인해주세요", e);
+                throw new OcrProcessingException(
+                        "OCR 외부 서비스 인증 또는 설정을 확인해주세요",
+                        e,
+                        HttpStatus.SERVICE_UNAVAILABLE
+                );
             }
 
             throw new OcrProcessingException("OCR 외부 서비스 요청 처리 중 오류가 발생했습니다", e);
@@ -187,6 +198,30 @@ public class OcrService {
         return value
                 .replaceAll("key=([^&\\s]+)", "key=***")
                 .replaceAll("\"key\"\\s*:\\s*\"[^\"]+\"", "\"key\":\"***\"");
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean isVisionConfigurationError(Object error) {
+        if (!(error instanceof Map<?, ?> errorMap)) {
+            return false;
+        }
+
+        Object code = errorMap.get("code");
+        if (code instanceof Number number && number.intValue() >= 400 && number.intValue() < 500) {
+            return true;
+        }
+
+        Object status = errorMap.get("status");
+        if (!(status instanceof String statusValue)) {
+            return false;
+        }
+
+        return Set.of(
+                "API_KEY_INVALID",
+                "FAILED_PRECONDITION",
+                "PERMISSION_DENIED",
+                "UNAUTHENTICATED"
+        ).contains(statusValue);
     }
 
     private void logExtractedTextForRetry(Long userId, String rawText) {

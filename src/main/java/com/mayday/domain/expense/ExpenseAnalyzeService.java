@@ -3,6 +3,7 @@ package com.mayday.domain.expense;
 import com.mayday.domain.ai.EvidenceJudgmentPolicy;
 import com.mayday.domain.ai.EvidenceJudgmentResult;
 import com.mayday.domain.ai.model.ConfidenceLevel;
+import com.mayday.domain.ai.model.EvidenceType;
 import com.mayday.domain.expense.dto.ExpenseAiRawResult;
 import com.mayday.domain.expense.dto.ExpenseAnalyzeRequest;
 import com.mayday.domain.expense.dto.ExpenseAnalyzeResponse;
@@ -54,7 +55,11 @@ public class ExpenseAnalyzeService {
     }
 
     private String normalizeEvidenceType(String evidenceType) {
-        return "NONE".equalsIgnoreCase(evidenceType) ? "UNKNOWN" : evidenceType;
+        try {
+            return EvidenceType.from(evidenceType).name();
+        } catch (IllegalArgumentException e) {
+            return EvidenceType.NON_QUALIFIED.name();
+        }
     }
 
     private String buildReason(String aiReason, String evidenceReason) {

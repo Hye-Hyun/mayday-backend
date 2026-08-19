@@ -1,6 +1,7 @@
 package com.mayday.controller;
 
 import com.mayday.domain.ai.model.ExpenseCategory;
+import com.mayday.domain.ai.model.EvidenceType;
 import com.mayday.domain.expense.ExpenseService;
 import com.mayday.domain.expense.dto.CategoryOptionResponse;
 import com.mayday.domain.expense.dto.CategoryOptionsResponse;
@@ -100,7 +101,11 @@ public class ExpenseController {
                 .map(category -> new CategoryOptionResponse(category.getLabel(), category.name()))
                 .toList();
 
-        CategoryOptionsResponse response = new CategoryOptionsResponse(expenseCategories, incomeCategories);
+        List<CategoryOptionResponse> evidenceTypes = EvidenceType.selectableValues().stream()
+                .map(evidenceType -> new CategoryOptionResponse(evidenceType.getLabel(), evidenceType.name()))
+                .toList();
+
+        CategoryOptionsResponse response = new CategoryOptionsResponse(expenseCategories, incomeCategories, evidenceTypes);
 
         return ResponseEntity.ok(ApiResponse.ok("계정과목 옵션 조회 성공", response));
     }

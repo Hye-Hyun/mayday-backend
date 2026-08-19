@@ -28,7 +28,7 @@ public class OpenAiExpenseAiClient implements ExpenseAiClient {
               "itemName": "string",
               "amount": number,
               "category": "SUPPLIES, SERVICE_FEES, TRAVEL_AND_TRANSPORTATION, ADVERTISING_EXPENSE, RENT, DELIVERY_EXPENSE, BUSINESS_PROMOTION_EXPENSE, TAXES_AND_DUES, VEHICLE_MAINTENANCE, OTHER_EXPENSE, SALES, OTHER_INCOME 중 하나",
-              "evidenceType": "CARD_RECEIPT, CASH_RECEIPT, TAX_INVOICE, INVOICE, SIMPLE_RECEIPT, UNKNOWN 중 하나",
+              "evidenceType": "CARD_RECEIPT, CASH_RECEIPT, TAX_INVOICE, INVOICE, NON_QUALIFIED 중 하나",
               "qualifiedEvidence": boolean,
               "reason": "판단 이유를 한국어로",
               "confidenceScore": 0에서 100 사이 정수
@@ -38,7 +38,7 @@ public class OpenAiExpenseAiClient implements ExpenseAiClient {
             - 세무 판단을 확정하지 말고 참고용으로만 판단할 것.
             - 적격증빙은 CARD_RECEIPT, CASH_RECEIPT, TAX_INVOICE, INVOICE 네 가지로만 판단할 것.
             - 지출 금액이 3만 원 이하이면 적격증빙 키워드가 없어도 적격 후보로 볼 수 있음.
-            - 그 외 증빙 단서가 없으면 evidenceType은 UNKNOWN, qualifiedEvidence는 false로 반환할 것.
+            - 그 외 증빙 단서가 없으면 evidenceType은 NON_QUALIFIED, qualifiedEvidence는 false로 반환할 것.
             """;
 
     @Override

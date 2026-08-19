@@ -63,7 +63,7 @@ class ExpenseServiceTest {
         assertThat(response.getUpdatedAt()).isNotNull();
         assertThat(expense.getItemName()).isEqualTo("사무용품 구매");
         assertThat(expense.getQualifiedEvidence()).isFalse();
-        assertThat(expense.getEvidenceType()).isEqualTo(EvidenceType.SIMPLE_RECEIPT);
+        assertThat(expense.getEvidenceType()).isEqualTo(EvidenceType.NON_QUALIFIED);
         assertThat(expense.getRemark()).isEqualTo("사용자 수정");
     }
 
@@ -97,7 +97,7 @@ class ExpenseServiceTest {
         ReflectionTestUtils.setField(request, "itemName", "사무용품 구매");
         ReflectionTestUtils.setField(request, "amount", 15_000L);
         ReflectionTestUtils.setField(request, "category", ExpenseCategory.SUPPLIES);
-        ReflectionTestUtils.setField(request, "evidenceType", EvidenceType.SIMPLE_RECEIPT);
+        ReflectionTestUtils.setField(request, "evidenceType", EvidenceType.NON_QUALIFIED);
         ReflectionTestUtils.setField(request, "qualifiedEvidence", false);
         ReflectionTestUtils.setField(request, "remark", "사용자 수정");
         return request;

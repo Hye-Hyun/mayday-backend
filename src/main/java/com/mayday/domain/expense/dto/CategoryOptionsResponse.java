@@ -6,13 +6,16 @@ public class CategoryOptionsResponse {
 
     private final List<CategoryOptionResponse> expenseCategories;
     private final List<CategoryOptionResponse> incomeCategories;
+    private final List<CategoryOptionResponse> evidenceTypes;
 
     public CategoryOptionsResponse(
             List<CategoryOptionResponse> expenseCategories,
-            List<CategoryOptionResponse> incomeCategories
+            List<CategoryOptionResponse> incomeCategories,
+            List<CategoryOptionResponse> evidenceTypes
     ) {
         this.expenseCategories = expenseCategories;
         this.incomeCategories = incomeCategories;
+        this.evidenceTypes = evidenceTypes;
     }
 
     public List<CategoryOptionResponse> getExpenseCategories() {
@@ -21,5 +24,9 @@ public class CategoryOptionsResponse {
 
     public List<CategoryOptionResponse> getIncomeCategories() {
         return incomeCategories;
+    }
+
+    public List<CategoryOptionResponse> getEvidenceTypes() {
+        return evidenceTypes;
     }
 }

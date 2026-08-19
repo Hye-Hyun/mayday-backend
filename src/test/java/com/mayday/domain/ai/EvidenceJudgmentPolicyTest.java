@@ -28,7 +28,7 @@ class EvidenceJudgmentPolicyTest {
         EvidenceJudgmentResult result = EvidenceJudgmentPolicy.evaluate(
                 "EXPENSE",
                 30_000L,
-                EvidenceType.UNKNOWN,
+                EvidenceType.NON_QUALIFIED,
                 ExpenseCategory.SUPPLIES
         );
 
@@ -38,11 +38,11 @@ class EvidenceJudgmentPolicyTest {
     }
 
     @Test
-    void largeSimpleReceiptIsNonQualifiedCandidate() {
+    void largeNonQualifiedEvidenceIsNonQualifiedCandidate() {
         EvidenceJudgmentResult result = EvidenceJudgmentPolicy.evaluate(
                 "EXPENSE",
                 50_000L,
-                EvidenceType.SIMPLE_RECEIPT,
+                EvidenceType.NON_QUALIFIED,
                 ExpenseCategory.SUPPLIES
         );
 
@@ -56,7 +56,7 @@ class EvidenceJudgmentPolicyTest {
         EvidenceJudgmentResult result = EvidenceJudgmentPolicy.evaluate(
                 "INCOME",
                 967_000,
-                "UNKNOWN",
+                "NON_QUALIFIED",
                 "SALES"
         );
 

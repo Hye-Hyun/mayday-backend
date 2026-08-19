@@ -103,17 +103,10 @@ public final class EvidenceJudgmentPolicy {
     }
 
     private static EvidenceType parseEvidenceType(String evidenceType) {
-        String normalizedEvidenceType = nullToBlank(evidenceType).toUpperCase(Locale.ROOT);
-        if (normalizedEvidenceType.isBlank()
-                || "NONE".equals(normalizedEvidenceType)
-                || "UNKNOWN".equals(normalizedEvidenceType)) {
-            return EvidenceType.UNKNOWN;
-        }
-
         try {
-            return EvidenceType.valueOf(normalizedEvidenceType);
+            return EvidenceType.from(evidenceType);
         } catch (IllegalArgumentException e) {
-            return EvidenceType.UNKNOWN;
+            return EvidenceType.NON_QUALIFIED;
         }
     }
 
