@@ -43,6 +43,18 @@ class ExpenseAnalyzeServiceTest {
         assertThat(response.getItemName()).isEqualTo("맥북 프로 14");
     }
 
+    @Test
+    void analyzeReturnsNullEvidenceFieldsForIncome() {
+        ExpenseAiClient expenseAiClient = rawText -> incomeRawResult();
+        ExpenseAnalyzeService service = new ExpenseAnalyzeService(expenseAiClient);
+
+        ExpenseAnalyzeResponse response = service.analyze(request());
+
+        assertThat(response.getType()).isEqualTo("INCOME");
+        assertThat(response.getEvidenceType()).isNull();
+        assertThat(response.getQualifiedEvidence()).isNull();
+    }
+
     private ExpenseAnalyzeRequest request() {
         ExpenseAnalyzeRequest request = BeanUtils.instantiateClass(ExpenseAnalyzeRequest.class);
         ReflectionTestUtils.setField(request, "rawText", "신용카드 매출전표");
@@ -61,6 +73,21 @@ class ExpenseAnalyzeServiceTest {
         ReflectionTestUtils.setField(raw, "evidenceType", EvidenceType.CARD_RECEIPT.name());
         ReflectionTestUtils.setField(raw, "qualifiedEvidence", true);
         ReflectionTestUtils.setField(raw, "reason", "신용카드 매출전표로 확인되었습니다.");
+        ReflectionTestUtils.setField(raw, "confidenceScore", 80);
+        return raw;
+    }
+
+    private ExpenseAiRawResult incomeRawResult() {
+        ExpenseAiRawResult raw = BeanUtils.instantiateClass(ExpenseAiRawResult.class);
+        ReflectionTestUtils.setField(raw, "type", "INCOME");
+        ReflectionTestUtils.setField(raw, "date", "2026-08-02");
+        ReflectionTestUtils.setField(raw, "merchantName", "크몽");
+        ReflectionTestUtils.setField(raw, "itemName", "디자인 용역");
+        ReflectionTestUtils.setField(raw, "amount", 1_000_000);
+        ReflectionTestUtils.setField(raw, "category", ExpenseCategory.SALES.name());
+        ReflectionTestUtils.setField(raw, "evidenceType", EvidenceType.NON_QUALIFIED.name());
+        ReflectionTestUtils.setField(raw, "qualifiedEvidence", false);
+        ReflectionTestUtils.setField(raw, "reason", "수입 기록으로 확인되었습니다.");
         ReflectionTestUtils.setField(raw, "confidenceScore", 80);
         return raw;
     }

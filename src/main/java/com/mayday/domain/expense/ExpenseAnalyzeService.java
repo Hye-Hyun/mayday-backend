@@ -39,8 +39,8 @@ public class ExpenseAnalyzeService {
                 .itemName(normalizeItemName(raw.getItemName()))
                 .amount(raw.getAmount())
                 .category(raw.getCategory())
-                .evidenceType(normalizeEvidenceType(raw.getEvidenceType()))
-                .qualifiedEvidence(evidenceJudgment.isQualifiedEvidence())
+                .evidenceType(resolveEvidenceType(raw))
+                .qualifiedEvidence(resolveQualifiedEvidence(raw, evidenceJudgment))
                 .reason(buildReason(raw.getReason(), evidenceJudgment.getEvidenceReason()))
                 .confidenceScore(raw.getConfidenceScore())
                 .confidenceLevel(ConfidenceLevel.fromScore(raw.getConfidenceScore()).name())
@@ -60,6 +60,24 @@ public class ExpenseAnalyzeService {
         } catch (IllegalArgumentException e) {
             return EvidenceType.NON_QUALIFIED.name();
         }
+    }
+
+    private String resolveEvidenceType(ExpenseAiRawResult raw) {
+        if (isIncome(raw)) {
+            return null;
+        }
+        return normalizeEvidenceType(raw.getEvidenceType());
+    }
+
+    private Boolean resolveQualifiedEvidence(ExpenseAiRawResult raw, EvidenceJudgmentResult evidenceJudgment) {
+        if (isIncome(raw)) {
+            return null;
+        }
+        return evidenceJudgment.isQualifiedEvidence();
+    }
+
+    private boolean isIncome(ExpenseAiRawResult raw) {
+        return "INCOME".equalsIgnoreCase(raw.getType());
     }
 
     private String buildReason(String aiReason, String evidenceReason) {
