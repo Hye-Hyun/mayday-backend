@@ -35,6 +35,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/demo-login")
+    public ResponseEntity<AuthResponse> demoLogin(){
+        return ResponseEntity.ok(authService.demoLogin());
+    }
+
     //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(){

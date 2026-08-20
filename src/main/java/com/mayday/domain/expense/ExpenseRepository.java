@@ -2,6 +2,7 @@ package com.mayday.domain.expense;
 
 import com.mayday.domain.ai.model.ExpenseCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
+
+    @Modifying
+    @Query("delete from Expense e where e.userId = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 
     Optional<Expense> findByIdAndDeletedFalse(Long id);
 

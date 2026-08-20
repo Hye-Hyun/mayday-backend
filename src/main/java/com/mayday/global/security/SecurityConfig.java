@@ -50,7 +50,13 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/health", "/error", "/auth/signup", "/auth/login").permitAll()
+                        .requestMatchers(
+                                "/health",
+                                "/error",
+                                "/auth/signup",
+                                "/auth/login",
+                                "/auth/demo-login"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

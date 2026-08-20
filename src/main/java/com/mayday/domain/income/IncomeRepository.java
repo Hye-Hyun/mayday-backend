@@ -1,6 +1,7 @@
 package com.mayday.domain.income;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -9,6 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IncomeRepository extends JpaRepository<Income, Long> {
+
+    @Modifying
+    @Query("delete from Income i where i.userId = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 
     List<Income> findByUserIdAndDateBetweenAndDeletedFalse(
             Long userId, LocalDate startDate, LocalDate endDate);

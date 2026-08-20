@@ -6,6 +6,7 @@ import com.mayday.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,14 @@ public class UserController {
             @Valid @RequestBody OnboardingRequest request
     ) {
         userService.completeOnboarding(userId, request);
-        return ResponseEntity.ok(ApiResponse.ok("온보딩 정보 저장 성공", null));
+        return ResponseEntity.ok(ApiResponse.ok("Onboarding completed.", null));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> withdraw(
+            @AuthenticationPrincipal Long userId
+    ) {
+        userService.withdraw(userId);
+        return ResponseEntity.ok(ApiResponse.ok("Account and associated data deleted.", null));
     }
 }

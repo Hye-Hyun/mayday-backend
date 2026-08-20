@@ -1,5 +1,7 @@
 package com.mayday.controller;
 
+import com.mayday.domain.user.User;
+import com.mayday.domain.user.UserRepository;
 import com.mayday.global.security.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,12 @@ class RecordCreateSecurityTest {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     void createsIncomeAndExpenseWithSameValidJwt() throws Exception {
-        String token = jwtTokenProvider.createToken(1L, "test@test.com");
+        String token = createTokenForExistingUser("records@test.com");
 
         mockMvc.perform(post("/incomes")
                         .header("Authorization", "Bearer " + token)
@@ -59,7 +64,7 @@ class RecordCreateSecurityTest {
 
     @Test
     void createsExpenseWithKoreanNonQualifiedEvidenceType() throws Exception {
-        String token = jwtTokenProvider.createToken(1L, "test@test.com");
+        String token = createTokenForExistingUser("korean-evidence@test.com");
 
         mockMvc.perform(post("/expenses")
                         .header("Authorization", "Bearer " + token)
@@ -76,5 +81,10 @@ class RecordCreateSecurityTest {
                                 }
                                 """))
                 .andExpect(status().isCreated());
+    }
+
+    private String createTokenForExistingUser(String email) {
+        User user = userRepository.save(new User(email, "encoded-password", true, true, true));
+        return jwtTokenProvider.createToken(user.getId(), user.getEmail());
     }
 }
