@@ -40,6 +40,13 @@ public class OpenAiExpenseAiClient implements ExpenseAiClient {
             - 지출 금액이 3만 원 이하이면 적격증빙 키워드가 없어도 적격 후보로 볼 수 있음.
             - 그 외 증빙 단서가 없으면 evidenceType은 NON_QUALIFIED, qualifiedEvidence는 false로 반환할 것.
             - 실제 거래 내용이 확인되지 않으면 itemName은 "string" 같은 예시값이 아니라 "-"로 반환할 것.
+            
+            금액(amount) 추출 규칙:
+            - amount는 텍스트에 표기된 최종 결제액 또는 실제 입금액 숫자를 그대로 반환할 것.
+            - 3.3% 원천징수 세금 역산을 포함하여 어떠한 계산도 스스로 하지 말 것.
+            - 세전 금액, 원래 금액, 수수료 차감 전 금액 등을 추론하거나 계산하지 말 것.
+            - 텍스트에 표기되지 않은 금액을 임의로 생성하거나 보정하지 말 것.
+            - 예를 들어 텍스트에 "3,191,100원 입금"이라고 표기되어 있다면 amount는 반드시 3191100으로 반환할 것.
             """;
 
     @Override
