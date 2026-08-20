@@ -27,7 +27,7 @@ public class AuthService {
                        PasswordEncoder passwordEncoder,
                        JwtTokenProvider jwtTokenProvider,
                        @Value("${demo.login.enabled:false}") boolean demoLoginEnabled,
-                       @Value("${demo.login.email:demo@mayday.local}") String demoEmail,
+                       @Value("${demo.login.email:mayday@demo.local}") String demoEmail,
                        @Value("${demo.login.password:demo-password-change-me}") String demoPassword){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

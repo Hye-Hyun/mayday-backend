@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 
 class AuthServiceTest {
 
-    private static final String DEMO_EMAIL = "demo@mayday.local";
+    private static final String DEMO_EMAIL = "mayday@demo.local";
     private static final String DEMO_PASSWORD = "demo-password";
 
     private final UserRepository userRepository = mock(UserRepository.class);
