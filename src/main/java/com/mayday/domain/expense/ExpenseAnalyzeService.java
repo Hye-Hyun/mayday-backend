@@ -23,7 +23,10 @@ public class ExpenseAnalyzeService {
     public ExpenseAnalyzeResponse analyze(ExpenseAnalyzeRequest request) {
         ExpenseAiRawResult raw = expenseAiClient.analyze(request.getRawText());
 
-        applyWithholdingTaxPolicy(raw, request.isWithholdingTaxApplied());
+        //원천징수 금액 역산 비활성화
+        //applyWithholdingTaxPolicy(raw, request.isWithholdingTaxApplied());
+
+
         EvidenceJudgmentResult evidenceJudgment = EvidenceJudgmentPolicy.evaluate(
                 raw.getType(),
                 raw.getAmount(),
