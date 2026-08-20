@@ -1,5 +1,6 @@
 package com.mayday.domain.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -20,8 +21,19 @@ public class SignUpRequest {
     @NotBlank(message = "비밀번호 확인은 필수입니다.")
     private String passwordConfirm;
 
+    @JsonAlias({"isAgreedToTerms", "termsAgreed", "agreedTerms", "termAgreement"})
     private boolean agreedToTerms;
+
+    @JsonAlias({"isAgreedToPrivacy", "privacyAgreed", "agreedPrivacy", "privacyAgreement"})
     private boolean agreedToPrivacy;
+
+    @JsonAlias({
+            "isAgreedToReceiptAnalysis",
+            "receiptAnalysisAgreed",
+            "agreedReceiptAnalysis",
+            "receiptAnalysisAgreement",
+            "evidenceProcessingAgreed"
+    })
     private boolean agreedToReceiptAnalysis;
 
 }

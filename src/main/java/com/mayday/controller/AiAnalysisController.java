@@ -22,7 +22,7 @@ public class AiAnalysisController {
         this.expenseCategorySuggestionService = expenseCategorySuggestionService;
     }
 
-    @PostMapping("/analyze")
+    @PostMapping("/analyze/rule-based")
     public ResponseEntity<ApiResponse<ExpenseAnalysisResponse>> analyzeExpense(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody ExpenseAnalysisRequest request

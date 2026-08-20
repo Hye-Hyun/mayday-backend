@@ -4,10 +4,14 @@ import com.mayday.domain.auth.dto.AuthResponse;
 import com.mayday.domain.auth.dto.LoginRequest;
 import com.mayday.domain.auth.dto.SignUpRequest;
 import com.mayday.domain.user.User;
+import com.mayday.domain.user.JobCategory;
 import com.mayday.domain.user.UserRepository;
 import com.mayday.global.exception.InvalidLoginException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import com.mayday.global.security.JwtTokenProvider;
 
 @Service
@@ -15,13 +19,22 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final boolean demoLoginEnabled;
+    private final String demoEmail;
+    private final String demoPassword;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider){
+                       JwtTokenProvider jwtTokenProvider,
+                       @Value("${demo.login.enabled:false}") boolean demoLoginEnabled,
+                       @Value("${demo.login.email:mayday@demo.local}") String demoEmail,
+                       @Value("${demo.login.password:demo-password-change-me}") String demoPassword){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.demoLoginEnabled = demoLoginEnabled;
+        this.demoEmail = demoEmail;
+        this.demoPassword = demoPassword;
     }
 
     //비밀번호, 비밀번호 확인 같은지 검사
@@ -104,5 +117,35 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createToken(user.getId(), user.getEmail());
 
         return new AuthResponse(accessToken, "Bearer", user.getId(), user.getEmail(), user.isOnboardingCompleted());
+    }
+
+    public AuthResponse demoLogin() {
+        if (!demoLoginEnabled) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        User demoUser = userRepository.findByEmail(demoEmail)
+                .orElseGet(this::createDemoUser);
+        String accessToken = jwtTokenProvider.createToken(demoUser.getId(), demoUser.getEmail());
+
+        return new AuthResponse(
+                accessToken,
+                "Bearer",
+                demoUser.getId(),
+                demoUser.getEmail(),
+                demoUser.isOnboardingCompleted()
+        );
+    }
+
+    private User createDemoUser() {
+        User demoUser = new User(
+                demoEmail,
+                passwordEncoder.encode(demoPassword),
+                true,
+                true,
+                true
+        );
+        demoUser.completeOnboarding(JobCategory.SALES_ORIENTED, 0L);
+        return userRepository.save(demoUser);
     }
 }

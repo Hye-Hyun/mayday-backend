@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -29,6 +30,11 @@ public class User {
     @Column(nullable = false)
     private boolean onboardingCompleted;
 
+    @Enumerated(EnumType.STRING)
+    private JobCategory jobCategory;
+
+    private Long initialIncome;
+
     protected User(){}
 
     public User(String email, String password,
@@ -40,6 +46,12 @@ public class User {
         this.agreedToPrivacy = agreedToPrivacy;
         this.agreedToReceiptAnalysis = agreedToReceiptAnalysis;
         this.onboardingCompleted = false;
+    }
+
+    public void completeOnboarding(JobCategory jobCategory, Long initialIncome) {
+        this.jobCategory = jobCategory;
+        this.initialIncome = initialIncome;
+        this.onboardingCompleted = true;
     }
 
 }

@@ -37,7 +37,12 @@ public class ExpenseCategorySuggestionService {
 
         ExpenseCategory category = suggestCategory(analysisText, amount);
         EvidenceType evidenceType = suggestEvidenceType(analysisText);
-        boolean qualifiedEvidence = suggestQualifiedEvidence(evidenceType, analysisText);
+        EvidenceJudgmentResult evidenceJudgment = EvidenceJudgmentPolicy.evaluate(
+                "EXPENSE",
+                amount,
+                evidenceType,
+                category
+        );
         int confidenceScore = calculateAnalysisConfidenceScore(
                 category,
                 evidenceType,
@@ -56,8 +61,8 @@ public class ExpenseCategorySuggestionService {
                 amount,
                 category,
                 evidenceType,
-                qualifiedEvidence,
-                buildAnalysisReason(category, evidenceType, qualifiedEvidence, amount),
+                evidenceJudgment.isQualifiedEvidence(),
+                buildAnalysisReason(category, evidenceType, evidenceJudgment, amount),
                 confidenceScore
         );
     }
@@ -244,7 +249,7 @@ public class ExpenseCategorySuggestionService {
         if (category != ExpenseCategory.OTHER_EXPENSE) {
             score += 20;
         }
-        if (evidenceType != EvidenceType.UNKNOWN) {
+        if (evidenceType != EvidenceType.NON_QUALIFIED) {
             score += 10;
         }
         if (hasText(merchantName) || hasText(itemName)) {
@@ -282,16 +287,19 @@ public class ExpenseCategorySuggestionService {
     private String buildAnalysisReason(
             ExpenseCategory category,
             EvidenceType evidenceType,
-            boolean qualifiedEvidence,
+            EvidenceJudgmentResult evidenceJudgment,
             Long amount
     ) {
         if (amount != null && amount > LARGE_EXPENSE_THRESHOLD) {
             return "지출 금액이 100만원을 초과해 우선 기타(비용)으로 분류하고 추가 확인이 필요합니다.";
         }
-        if (evidenceType == EvidenceType.UNKNOWN && category == ExpenseCategory.OTHER_EXPENSE) {
+        if (evidenceType == EvidenceType.NON_QUALIFIED && category == ExpenseCategory.OTHER_EXPENSE) {
             return "거래 텍스트에서 명확한 증빙 유형과 경비 항목 단서를 찾지 못해 추가 확인이 필요합니다.";
         }
-        if (qualifiedEvidence) {
+        if (evidenceJudgment.isQualifiedEvidence()) {
+            if (evidenceType == EvidenceType.NON_QUALIFIED) {
+                return evidenceJudgment.getEvidenceReason();
+            }
             return evidenceType.getLabel() + " 단서와 " + category.getLabel() + " 관련 단어가 확인되어 AI 분석 결과로 제안합니다.";
         }
 
@@ -347,17 +355,10 @@ public class ExpenseCategorySuggestionService {
         }
 
         if(containsAny(text, "영수증", "간이영수증")){
-            return EvidenceType.SIMPLE_RECEIPT;
+            return EvidenceType.NON_QUALIFIED;
         }
 
-        return EvidenceType.UNKNOWN;
-    }
-
-    private boolean suggestQualifiedEvidence(EvidenceType evidenceType, String text){
-        return evidenceType == EvidenceType.CARD_RECEIPT
-                || evidenceType == EvidenceType.CASH_RECEIPT
-                || evidenceType == EvidenceType.TAX_INVOICE
-                || evidenceType == EvidenceType.INVOICE;
+        return EvidenceType.NON_QUALIFIED;
     }
 
     private LocalDate parseDate(String date) {
