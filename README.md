@@ -47,6 +47,9 @@ JWT_SECRET=<at-least-32-byte-secret>
 JWT_ACCESS_TOKEN_EXPIRATION=3600000
 OPENAI_API_KEY=<openai-api-key>
 CORS_ALLOWED_ORIGINS=<frontend-url-or-*>
+DEMO_LOGIN_ENABLED=true
+DEMO_LOGIN_EMAIL=demo@mayday.local
+DEMO_LOGIN_PASSWORD=<strong-demo-password>
 ```
 
 OCR can be skipped for temporary API testing. To enable OCR on Render, prefer a
