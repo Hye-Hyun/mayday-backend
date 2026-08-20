@@ -25,7 +25,7 @@ public class OpenAiExpenseAiClient implements ExpenseAiClient {
               "type": "EXPENSE 또는 INCOME",
               "date": "YYYY-MM-DD",
               "merchantName": "string",
-              "itemName": "string",
+              "itemName": "거래 내용. 확인 불가하면 '-'",
               "amount": number,
               "category": "SUPPLIES, SERVICE_FEES, TRAVEL_AND_TRANSPORTATION, ADVERTISING_EXPENSE, RENT, DELIVERY_EXPENSE, BUSINESS_PROMOTION_EXPENSE, TAXES_AND_DUES, VEHICLE_MAINTENANCE, OTHER_EXPENSE, SALES, OTHER_INCOME 중 하나",
               "evidenceType": "CARD_RECEIPT, CASH_RECEIPT, TAX_INVOICE, INVOICE, NON_QUALIFIED 중 하나",
@@ -39,6 +39,7 @@ public class OpenAiExpenseAiClient implements ExpenseAiClient {
             - 적격증빙은 CARD_RECEIPT, CASH_RECEIPT, TAX_INVOICE, INVOICE 네 가지로만 판단할 것.
             - 지출 금액이 3만 원 이하이면 적격증빙 키워드가 없어도 적격 후보로 볼 수 있음.
             - 그 외 증빙 단서가 없으면 evidenceType은 NON_QUALIFIED, qualifiedEvidence는 false로 반환할 것.
+            - 실제 거래 내용이 확인되지 않으면 itemName은 "string" 같은 예시값이 아니라 "-"로 반환할 것.
             """;
 
     @Override

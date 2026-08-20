@@ -36,7 +36,7 @@ public class ExpenseAnalyzeService {
                 .type(raw.getType())
                 .date(raw.getDate())
                 .merchantName(raw.getMerchantName())
-                .itemName(raw.getItemName())
+                .itemName(normalizeItemName(raw.getItemName()))
                 .amount(raw.getAmount())
                 .category(raw.getCategory())
                 .evidenceType(normalizeEvidenceType(raw.getEvidenceType()))
@@ -67,6 +67,13 @@ public class ExpenseAnalyzeService {
             return evidenceReason;
         }
         return aiReason;
+    }
+
+    private String normalizeItemName(String itemName) {
+        if (itemName == null || itemName.isBlank() || "string".equalsIgnoreCase(itemName.trim())) {
+            return "-";
+        }
+        return itemName;
     }
 
     private String generateAnalysisId() {
